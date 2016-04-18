@@ -22,10 +22,12 @@
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon
+from processing.core.Processing import Processing
 # Initialize Qt resources from file resources.py
 import resources
 # Import the code for the dialog
 from routing_dialog import SafeRoutingDialog
+from inasafe_processing.provider import InaSafeProvider
 import os.path
 
 
@@ -67,6 +69,10 @@ class SafeRouting:
         # TODO: We are going to let the user set this up in a future iteration
         self.toolbar = self.iface.addToolBar(u'SafeRouting')
         self.toolbar.setObjectName(u'SafeRouting')
+
+        # Init InaSAFE Processing Provider
+        self.provider = InaSafeProvider()
+        Processing.addProvider(self.provider, True)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -167,7 +173,6 @@ class SafeRouting:
             callback=self.run,
             parent=self.iface.mainWindow())
 
-
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
@@ -177,7 +182,7 @@ class SafeRouting:
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
-
+        Processing.removeProvider(self.provider)
 
     def run(self):
         """Run method that performs all the real work"""
